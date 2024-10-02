@@ -1,24 +1,25 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const app = express();
 const cors = require("cors");
 require('dotenv').config();
 
+const app = express();
 app.use(express.json());
-app.use(cors({ origin: "https://todo-list-seven-sable.vercel.app", credentials: true}));
+app.use(cors({ origin: "https://todo-list-seven-sable.vercel.app", credentials: true }));
 
 // mongoose and model creation
 mongoose
-  .connect(
-    "mongodb+srv://mpragavan0209:ragavan2004@cluster0.le1bt2x.mongodb.net/todo-list"
-  )
+  .connect(process.env.CONNECTION_URL) // Use environment variable
   .then((con) => {
-    console.log("Database connected to the host : " + con.connection.host);
+    console.log("Database connected to the host: " + con.connection.host);
   })
   .catch((err) => console.log(err));
-app.get('/',(req,res) => {
-  res.json("Hello World")
-})
+
+// Test route
+app.get('/', (req, res) => {
+  res.json("Hello World");
+});
+
 // mongoose model
 const todoSchema = new mongoose.Schema({
   title: {
@@ -31,8 +32,8 @@ const todoSchema = new mongoose.Schema({
 
 const todoModel = mongoose.model("Todo", todoSchema);
 
-//add todos
-app.post("/todos", async (req, res) => {
+// Add todos
+app.post("/api/todos", async (req, res) => {
   const { title, description } = req.body;
   try {
     const newTodo = new todoModel({ title, description });
@@ -44,8 +45,8 @@ app.post("/todos", async (req, res) => {
   }
 });
 
-//get todos
-app.get("/todos", async (req, res) => {
+// Get todos
+app.get("/api/todos", async (req, res) => {
   try {
     const todos = await todoModel.find();
     res.json(todos);
@@ -55,20 +56,15 @@ app.get("/todos", async (req, res) => {
   }
 });
 
-//update todo
-app.put("/todos/:id", async (req, res) => {
+// Update todo
+app.put("/api/todos/:id", async (req, res) => {
   try {
     const { title, description } = req.body;
     const id = req.params.id;
     const updatedTodo = await todoModel.findByIdAndUpdate(
       id,
-      {
-        title,
-        description,
-      },
-      {
-        new: true,
-      }
+      { title, description },
+      { new: true }
     );
     if (!updatedTodo) {
       return res.status(404).json({ message: "Todo not found" });
@@ -80,8 +76,8 @@ app.put("/todos/:id", async (req, res) => {
   }
 });
 
-//delete todo
-app.delete("/todos/:id", async (req, res) => {
+// Delete todo
+app.delete("/api/todos/:id", async (req, res) => {
   try {
     const id = req.params.id;
     await todoModel.findByIdAndDelete(id);
@@ -92,14 +88,8 @@ app.delete("/todos/:id", async (req, res) => {
   }
 });
 
-//front-end connection
-// app.use(express.static(path.join(__dirname,'../client/dist')));
-// app.get('*', (req, res) => {
-//   res.sendFile(path.resolve(__dirname,'../client/dist/index.html'));
-// })
-
-// server
+// Server
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, (res) => {
+app.listen(PORT, () => {
   console.log("Server listening on port " + PORT);
 });

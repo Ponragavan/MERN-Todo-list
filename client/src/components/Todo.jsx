@@ -10,7 +10,7 @@ const Todo = () => {
   const [editId, setEditId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
-  const apiUrl = "https://todo-list-server-lime-three.vercel.app";
+  const apiUrl = "https://todo-list-server-lime-three.vercel.app/api";
 
   const handleSubmit = (e) => {
     setError("");
