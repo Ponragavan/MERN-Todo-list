@@ -10,7 +10,7 @@ app.use(cors({ origin: "https://todo-list-seven-sable.vercel.app", credentials: 
 // mongoose and model creation
 mongoose
   .connect(
-    process.env.CONNECTION_URL
+    "mongodb+srv://mpragavan0209:ragavan2004@cluster0.le1bt2x.mongodb.net/todo-list"
   )
   .then((con) => {
     console.log("Database connected to the host : " + con.connection.host);
