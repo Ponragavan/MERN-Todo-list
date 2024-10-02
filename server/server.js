@@ -11,7 +11,7 @@ app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true })); // No ne
 mongoose
   .connect(process.env.CONNECTION_URL)
   .then((con) => {
-    console.log("Database connected to the host: " + con.connection.host);
+    console.log("Database connected to the host");
   })
   .catch((err) => console.log(err));
 
