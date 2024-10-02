@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+li{
+    list-style: none;
+}
+@keyframes slideIn {
+    0% {
+      top: 0;
+      opacity: 0;
+    }
+    50%{
+      top: 20px;
+      opacity: 0.5;
+    }
+    100% {
+      top: 40px;
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideOut {
+    0% {
+      top: 40px;
+      opacity: 1;
+    }
+    100% {
+      top: -50px;
+      opacity: 0;
+    }
+  }
+  .animation-enter {
+    animation: slideIn 0.5s forwards;
+  }
+  
+  .animation-exit {
+    animation: slideOut 0.5s forwards;
+  }
+  
+  .message {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 40px;
+    z-index: 10;
+    background-color: #38a169; 
+    color: white;
+    padding: 1rem;
+  }
+  
