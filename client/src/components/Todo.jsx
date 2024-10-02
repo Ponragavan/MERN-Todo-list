@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+
 axios.defaults.withCredentials = true;
+
 const Todo = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -10,7 +12,9 @@ const Todo = () => {
   const [editId, setEditId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
-  const apiUrl = "https://todo-list-server-lime-three.vercel.app/api";
+  
+  // Ensure the URL does not have a trailing slash in your environment variable
+  const apiUrl = import.meta.env.VITE_BACKEND_URL; // should be without trailing slash
 
   const handleSubmit = (e) => {
     setError("");
@@ -18,22 +22,15 @@ const Todo = () => {
 
     if (title.trim() !== "" && description.trim() !== "") {
       axios
-        .post(apiUrl + "/todos", {
-          title,
-          description,
-        })
+        .post(`${apiUrl}/todos`, { title, description })
         .then((res) => {
-          setTodos([...todos, { title, description }]);
+          setTodos([...todos, res.data]); // Use res.data to add the newly created todo
           setMessage("Item added successfully");
           setTitle("");
           setDescription("");
-          setTimeout(() => {
-            setMessage("");
-          }, 3000);
+          setTimeout(() => setMessage(""), 3000);
         })
-        .catch((err) => {
-          setError("Error creating todo item");
-        });
+        .catch(() => setError("Error creating todo item"));
     } else {
       setError("Title and description cannot be empty");
     }
@@ -45,13 +42,9 @@ const Todo = () => {
 
   const getItems = () => {
     axios
-      .get(apiUrl + "/todos")
-      .then((res) => {
-        setTodos(res.data);
-      })
-      .catch((err) => {
-        setError("Error fetching todos");
-      });
+      .get(`${apiUrl}/todos`)
+      .then((res) => setTodos(res.data))
+      .catch(() => setError("Error fetching todos"));
   };
 
   const handleEdit = (item) => {
@@ -72,30 +65,23 @@ const Todo = () => {
 
     if (editTitle.trim() !== "" && editDescription.trim() !== "") {
       axios
-        .put(apiUrl + `/todos/${id}`, {
+        .put(`${apiUrl}/todos/${id}`, {
           title: editTitle,
           description: editDescription,
         })
-        .then((res) => {
+        .then(() => {
           const updatedTodos = todos.map((todo) => {
             if (todo._id === id) {
-              todo.title = editTitle;
-              todo.description = editDescription;
+              return { ...todo, title: editTitle, description: editDescription };
             }
             return todo;
           });
           setTodos(updatedTodos);
           setMessage("Item updated successfully");
-          setTimeout(() => {
-            setMessage("");
-          }, 3000);
-          setEditTitle("");
-          setEditDescription("");
-          setEditId(null);
+          setTimeout(() => setMessage(""), 3000);
+          handleEditCancel(); // Clear the edit fields
         })
-        .catch((err) => {
-          setError("Error updating todo item");
-        });
+        .catch(() => setError("Error updating todo item"));
     } else {
       setError("Title and description cannot be empty");
     }
@@ -104,18 +90,14 @@ const Todo = () => {
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete?")) {
       axios
-        .delete(apiUrl + `/todos/${id}`)
+        .delete(`${apiUrl}/todos/${id}`)
         .then(() => {
           const updatedTodos = todos.filter((item) => item._id !== id);
           setTodos(updatedTodos);
           setMessage("Item deleted successfully");
-          setTimeout(() => {
-            setMessage("");
-          }, 3000);
+          setTimeout(() => setMessage(""), 3000);
         })
-        .catch((err) => {
-          setError("Error deleting todo item");
-        });
+        .catch(() => setError("Error deleting todo item"));
     }
   };
 
@@ -127,11 +109,7 @@ const Todo = () => {
       <div>
         <h3 className="my-3 ml-6 text-xl">Add Item</h3>
         {message && (
-          <p
-            className={`message ${
-              message ? "animation-enter" : "animation-exit"
-            }`}
-          >
+          <p className={`message ${message ? "animation-enter" : "animation-exit"}`}>
             {message}
           </p>
         )}
@@ -225,9 +203,7 @@ const Todo = () => {
             </li>
           ))
         ) : (
-          <p className="m-5 text-xl text-center ">
-            Add tasks to display...
-          </p>
+          <p className="m-5 text-xl text-center">Add tasks to display...</p>
         )}
       </div>
     </>
