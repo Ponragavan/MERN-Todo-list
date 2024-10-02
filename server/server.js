@@ -16,7 +16,9 @@ mongoose
     console.log("Database connected to the host : " + con.connection.host);
   })
   .catch((err) => console.log(err));
-
+app.get('/',(req,res) => {
+  res.json("Hello World")
+})
 // mongoose model
 const todoSchema = new mongoose.Schema({
   title: {
