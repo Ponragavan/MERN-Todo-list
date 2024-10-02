@@ -5,7 +5,7 @@ const cors = require("cors");
 require('dotenv').config();
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: "https://todo-list-seven-sable.vercel.app", credentials: true}));
 
 // mongoose and model creation
 mongoose

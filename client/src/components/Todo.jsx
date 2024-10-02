@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-
+import axios from "axios";
+axios.defaults.withCredentials = true;
 const Todo = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -9,35 +10,26 @@ const Todo = () => {
   const [editId, setEditId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
-  const apiUrl = "http://localhost:8000";
+  const apiUrl = "https://todo-list-server-lime-three.vercel.app";
 
   const handleSubmit = (e) => {
     setError("");
     setMessage("");
 
     if (title.trim() !== "" && description.trim() !== "") {
-      fetch(apiUrl + "/todos", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      axios
+        .post(apiUrl + "/todos", {
           title,
           description,
-        }),
-      })
+        })
         .then((res) => {
-          if (res.ok) {
-            setTodos([...todos, { title, description }]);
-            setMessage("Item added successfully");
-            setTitle("");
-            setDescription("");
-            setTimeout(() => {
-              setMessage("");
-            }, 3000);
-          } else {
-            setError("Unable to create todo item");
-          }
+          setTodos([...todos, { title, description }]);
+          setMessage("Item added successfully");
+          setTitle("");
+          setDescription("");
+          setTimeout(() => {
+            setMessage("");
+          }, 3000);
         })
         .catch((err) => {
           setError("Error creating todo item");
@@ -52,10 +44,13 @@ const Todo = () => {
   }, []);
 
   const getItems = () => {
-    fetch(apiUrl + "/todos")
-      .then((res) => res.json())
+    axios
+      .get(apiUrl + "/todos")
       .then((res) => {
-        setTodos(res);
+        setTodos(res.data);
+      })
+      .catch((err) => {
+        setError("Error fetching todos");
       });
   };
 
@@ -76,36 +71,27 @@ const Todo = () => {
     setMessage("");
 
     if (editTitle.trim() !== "" && editDescription.trim() !== "") {
-      fetch(apiUrl + `/todos/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      axios
+        .put(apiUrl + `/todos/${id}`, {
           title: editTitle,
           description: editDescription,
-        }),
-      })
+        })
         .then((res) => {
-          if (res.ok) {
-            const updatedTodos = todos.map((todo) => {
-              if (todo._id === id) {
-                todo.title = editTitle;
-                todo.description = editDescription;
-              }
-              return todo;
-            });
-            setTodos(updatedTodos);
-            setMessage("Item updated successfully");
-            setTimeout(() => {
-              setMessage("");
-            }, 3000);
-            setEditTitle("");
-            setEditDescription("");
-            setEditId(null);
-          } else {
-            setError("Unable to update todo item");
-          }
+          const updatedTodos = todos.map((todo) => {
+            if (todo._id === id) {
+              todo.title = editTitle;
+              todo.description = editDescription;
+            }
+            return todo;
+          });
+          setTodos(updatedTodos);
+          setMessage("Item updated successfully");
+          setTimeout(() => {
+            setMessage("");
+          }, 3000);
+          setEditTitle("");
+          setEditDescription("");
+          setEditId(null);
         })
         .catch((err) => {
           setError("Error updating todo item");
@@ -117,26 +103,29 @@ const Todo = () => {
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete?")) {
-      fetch(apiUrl + `/todos/${id}`, {
-        method: "DELETE",
-      }).then(() => {
-        const updatedTodos = todos.filter((item) => item._id !== id);
-        setTodos(updatedTodos);
-        setMessage("Item deleted successfully");
-        setTimeout(() => {
-          setMessage("");
-        }, 3000);
-      });
+      axios
+        .delete(apiUrl + `/todos/${id}`)
+        .then(() => {
+          const updatedTodos = todos.filter((item) => item._id !== id);
+          setTodos(updatedTodos);
+          setMessage("Item deleted successfully");
+          setTimeout(() => {
+            setMessage("");
+          }, 3000);
+        })
+        .catch((err) => {
+          setError("Error deleting todo item");
+        });
     }
   };
 
   return (
     <>
-      <div className="w-full text-center p-3 bg-indigo-400 text-white text-2xl">
+      <div className="w-full p-3 text-2xl text-center text-white bg-indigo-400">
         <h1>Todo project with MERN stack</h1>
       </div>
       <div>
-        <h3 className="ml-6 text-xl my-3">Add Item</h3>
+        <h3 className="my-3 ml-6 text-xl">Add Item</h3>
         {message && (
           <p
             className={`message ${
@@ -170,8 +159,8 @@ const Todo = () => {
         </div>
         {error && <p className="ml-6 text-red-600">{error}</p>}
       </div>
-      <div className="flex flex-col mt-5 gap-3">
-        <h3 className="text-center text-xl uppercase text-amber-700">Tasks</h3>
+      <div className="flex flex-col gap-3 mt-5">
+        <h3 className="text-xl text-center uppercase text-amber-700">Tasks</h3>
         {todos.length > 0 ? (
           todos.map((item) => (
             <li
@@ -183,7 +172,7 @@ const Todo = () => {
                   <>
                     <input
                       value={editTitle}
-                      className="bg-cyan-100 capitalize"
+                      className="capitalize bg-cyan-100"
                       type="text"
                       onChange={(e) => setEditTitle(e.target.value)}
                     />
@@ -220,14 +209,14 @@ const Todo = () => {
                 {editId !== item._id ? (
                   <button
                     onClick={() => handleDelete(item._id)}
-                    className="px-2 py-1 bg-red-500 text-white rounded-md"
+                    className="px-2 py-1 text-white bg-red-500 rounded-md"
                   >
                     Delete
                   </button>
                 ) : (
                   <button
                     onClick={handleEditCancel}
-                    className="px-2 py-1 bg-red-400 text-white rounded-md"
+                    className="px-2 py-1 text-white bg-red-400 rounded-md"
                   >
                     Cancel
                   </button>
@@ -236,7 +225,7 @@ const Todo = () => {
             </li>
           ))
         ) : (
-          <p className="text-center text-xl m-5 ">
+          <p className="m-5 text-xl text-center ">
             Add tasks to display...
           </p>
         )}
