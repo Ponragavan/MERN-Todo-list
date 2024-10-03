@@ -22,4 +22,4 @@ You can check out the live demo of the application here:
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB (MongoDB Atlas)
 - **Styling**: Tailwind CSS
-- **Hosting**: Render.com (Frontend & Backend)
+- **Hosting**: Netlify for Frontend & Render for Backend
