@@ -12,9 +12,9 @@ const Todo = () => {
   const [editId, setEditId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
-  
-  // Ensure the URL does not have a trailing slash in your environment variable
-  const apiUrl = import.meta.env.VITE_BACKEND_URL; // should be without trailing slash
+  const [isLoading, setIsLoading] = useState(false);
+
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
   const handleSubmit = (e) => {
     setError("");
@@ -41,10 +41,12 @@ const Todo = () => {
   }, []);
 
   const getItems = () => {
+    setIsLoading(true);
     axios
       .get(`${apiUrl}/todos`)
       .then((res) => setTodos(res.data))
       .catch(() => setError("Error fetching todos"));
+    setIsLoading(false);
   };
 
   const handleEdit = (item) => {
@@ -72,7 +74,11 @@ const Todo = () => {
         .then(() => {
           const updatedTodos = todos.map((todo) => {
             if (todo._id === id) {
-              return { ...todo, title: editTitle, description: editDescription };
+              return {
+                ...todo,
+                title: editTitle,
+                description: editDescription,
+              };
             }
             return todo;
           });
@@ -109,7 +115,11 @@ const Todo = () => {
       <div>
         <h3 className="my-3 ml-6 text-xl">Add Item</h3>
         {message && (
-          <p className={`message ${message ? "animation-enter" : "animation-exit"}`}>
+          <p
+            className={`message ${
+              message ? "animation-enter" : "animation-exit"
+            }`}
+          >
             {message}
           </p>
         )}
@@ -139,7 +149,7 @@ const Todo = () => {
       </div>
       <div className="flex flex-col gap-3 mt-5">
         <h3 className="text-xl text-center uppercase text-amber-700">Tasks</h3>
-        {todos.length > 0 ? (
+        {todos.length > 0 && !isLoading ? (
           todos.map((item) => (
             <li
               key={item._id}
@@ -164,7 +174,9 @@ const Todo = () => {
                 ) : (
                   <>
                     <span className="font-bold capitalize">{item.title}</span>
-                    <span className="font-light text-wrap">{item.description}</span>
+                    <span className="font-light text-wrap">
+                      {item.description}
+                    </span>
                   </>
                 )}
               </div>
@@ -203,7 +215,7 @@ const Todo = () => {
             </li>
           ))
         ) : (
-          <p className="m-5 text-xl text-center">Add tasks to display...</p>
+          <p className="m-5 text-xl text-center">{isLoading ? 'Loading...' : 'Add tasks to display...'}</p>
         )}
       </div>
     </>
