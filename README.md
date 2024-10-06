@@ -5,7 +5,7 @@ A simple Todo List application built with the MERN (MongoDB, Express, React, Nod
 ## Live Demo
 
 You can check out the live demo of the application here:  
-[Todo List Demo](https://todo-list-frontend-9yu8.onrender.com/)
+[Todo List Demo](https://activity-checklist.netlify.app/)
 
 ## Features
 
