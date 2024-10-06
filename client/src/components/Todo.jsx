@@ -41,13 +41,18 @@ const Todo = () => {
   }, []);
 
   const getItems = () => {
-    setIsLoading(true);
-    axios
-      .get(`${apiUrl}/todos`)
-      .then((res) => setTodos(res.data))
-      .catch(() => setError("Error fetching todos"));
-    setIsLoading(false);
-  };
+  setIsLoading(true);
+  axios
+    .get(`${apiUrl}/todos`)
+    .then((res) => {
+      setTodos(res.data);
+      setIsLoading(false);
+    })
+    .catch(() => {
+      setError("Error fetching todos");
+      setIsLoading(false);
+    });
+};
 
   const handleEdit = (item) => {
     setEditId(item._id);
